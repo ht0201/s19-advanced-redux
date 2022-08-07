@@ -4,20 +4,20 @@ import { useDispatch } from "react-redux";
 import { cartActions } from "../../store/reducers/cart-slice";
 
 const ProductItem = (props) => {
-  const { title, price, description } = props;
-  console.log(props);
+  const { title, price, description, id, quantity, totalPrice } = props;
+
   const dispatch = useDispatch();
-  const addItemHandler = () => {
-    const newItem = {
-      itemId: Math.floor(Math.random() * 100),
-      title,
-      description: "second item",
-      price,
-      quantity: 1,
-      totalPrice: price,
-    };
-    console.log(newItem);
-    dispatch(cartActions.addItemToCart(newItem));
+  const addItemToCartHandler = () => {
+    dispatch(
+      cartActions.addItemToCart({
+        id,
+        title,
+        description,
+        price,
+        quantity,
+        totalPrice,
+      })
+    );
   };
 
   return (
@@ -29,7 +29,7 @@ const ProductItem = (props) => {
         </header>
         <p>{description}</p>
         <div className={classes.actions}>
-          <button onClick={addItemHandler}>Add to Cart</button>
+          <button onClick={addItemToCartHandler}>Add to Cart</button>
         </div>
       </Card>
     </li>
