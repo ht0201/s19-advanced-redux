@@ -1,19 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { uiActions } from './ui-slice';
+import { createSlice } from "@reduxjs/toolkit";
+import { uiActions } from "./ui-slice";
 
 const initialCartState = {
   items: [],
   totalQuantity: 0,
+  changed: false,
 };
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState: initialCartState,
   reducers: {
+    replaceCart(state, action) {
+      state.totalQuantity = action.payload.totalQuantity;
+      state.items = action.payload.items;
+    },
+
     addItemToCart(state, action) {
       const newItem = action.payload;
       const existingItem = state.items.find((item) => item.id === newItem.id);
+
       state.totalQuantity++;
+      state.changed = true;
+
       if (!existingItem) {
         state.items.push({
           id: newItem.id,
@@ -27,10 +36,14 @@ const cartSlice = createSlice({
         existingItem.totalPrice += newItem.price;
       }
     },
+
     removeItemFromCart(state, action) {
       const id = action.payload;
       const existingItem = state.items.find((item) => item.id === id);
+
       state.totalQuantity--;
+      state.changed = true;
+
       if (existingItem && existingItem.quantity === 1) {
         state.items = state.items.filter((item) => item.id !== id);
       } else {
@@ -45,23 +58,23 @@ export const sendDataCart = (cart) => {
   return async (dispatch) => {
     dispatch(
       uiActions.showNotification({
-        status: 'Pending...',
-        title: 'Sending...',
-        message: 'Sending cart data!',
+        status: "Pending...",
+        title: "Sending...",
+        message: "Sending cart data!",
       })
     );
 
     const sendRequest = async () => {
       const res = await fetch(
-        'https://react-http-8333c-default-rtdb.firebaseio.com/cart.json',
+        "https://react-http-8333c-default-rtdb.firebaseio.com/cart.json",
         {
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify(cart),
         }
       );
 
       if (!res.ok) {
-        throw new Error('Send data cart failed!');
+        throw new Error("Send data cart failed!");
       }
     };
 
@@ -69,17 +82,17 @@ export const sendDataCart = (cart) => {
       await sendRequest();
       dispatch(
         uiActions.showNotification({
-          status: 'success',
-          title: 'Success',
-          message: 'Data sent !',
+          status: "success",
+          title: "Success",
+          message: "Data sent !",
         })
       );
     } catch (error) {
       dispatch(
         uiActions.showNotification({
-          status: 'error',
-          title: 'Failed',
-          message: 'Send data cart failed !',
+          status: "error",
+          title: "Failed",
+          message: "Send data cart failed !",
         })
       );
     }
